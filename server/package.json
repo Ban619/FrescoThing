@@ -1,0 +1,2 @@
+{"name":"server-paint-ocr","version":"1.0.0","type":"module","scripts":{"start":"node server.js"},
+"dependencies":{"@arcships/light-ocr":"^0.5.8","express":"^4.21.2","multer":"^2.0.1","cors":"^2.8.5"}}

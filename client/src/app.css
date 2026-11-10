@@ -1,0 +1,380 @@
+/* Hand Paint — only what 7.css does not provide:
+   wallpaper, window sizing, canvas grid/stack/overlay, drop zone,
+   OCR lines list, dialog overlay. Everything else is 7.css. */
+:root {
+  --old-scroll-track: #d4d0c8;
+  --old-scroll-track-shadow: #ffffff;
+  --old-scroll-thumb: #c5c2bc;
+  --old-scroll-thumb-dark: #7a7a7a;
+  --old-scroll-thumb-light: #f4f4f4;
+}
+
+* {
+  scrollbar-width: auto;
+  scrollbar-color: var(--old-scroll-thumb-dark) var(--old-scroll-track);
+}
+
+*::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+  background: var(--old-scroll-track);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--old-scroll-track);
+  box-shadow: inset 1px 1px 0 #f4f4f4, inset -1px -1px 0 #808080;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--old-scroll-thumb-light) 0%, var(--old-scroll-thumb) 20%, var(--old-scroll-thumb) 80%, #a8a8a8 100%);
+  border: 2px solid var(--old-scroll-track);
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--old-scroll-track);
+}
+
+*::-webkit-scrollbar-button:single-button {
+  background: var(--old-scroll-track);
+  border: 2px solid #d4d0c8;
+  box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #808080;
+}
+
+*::-webkit-scrollbar-button:single-button:vertical:decrement {
+  background-image: linear-gradient(135deg, #666 0 50%, transparent 50% 100%);
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 16px;
+}
+
+*::-webkit-scrollbar-button:single-button:vertical:increment {
+  background-image: linear-gradient(315deg, #666 0 50%, transparent 50% 100%);
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 16px;
+}
+
+*::-webkit-scrollbar-button:single-button:horizontal:decrement {
+  background-image: linear-gradient(225deg, #666 0 50%, transparent 50% 100%);
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 16px;
+}
+
+*::-webkit-scrollbar-button:single-button:horizontal:increment {
+  background-image: linear-gradient(45deg, #666 0 50%, transparent 50% 100%);
+  background-size: 8px 8px;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 16px;
+}
+
+.desktop {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  padding: 12px; overflow: auto;
+  background: #E6E7EB url("/piksur/background.png") center / cover no-repeat fixed;
+}
+.desktop-clock {
+  position: absolute;
+  z-index: 0;
+  top: 43%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  width: min(282px, calc(100% - 24px));
+  box-sizing: border-box;
+  padding: 20px clamp(12px, 4vw, 30px);
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(255,255,255,.2), rgba(255,255,255,.06));
+  box-shadow: 0 8px 32px rgba(10,38,53,.2), inset 0 1px 0 rgba(255,255,255,.34);
+  backdrop-filter: blur(14px) saturate(135%);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(13,38,45,.55);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.desktop-clock-time {
+  font-size: clamp(42px, 7vw, 72px);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  line-height: 1;
+}
+.desktop-clock-date {
+  color: rgba(255,255,255,.92);
+  font-size: clamp(12px, 1.5vw, 16px);
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+.desktop-workspace {
+  position: absolute;
+  inset: 0;
+  min-width: 0;
+  min-height: 0;
+}
+.desktop-workspace > .window {
+  width: min(1180px, 97vw);
+  max-height: calc(100% - 60px);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+.desktop-workspace > .app-window {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 20px);
+  z-index: 1;
+  transform: translate(-50%, -50%);
+}
+.desktop-workspace > .relief-app-window {
+  left: calc(50% + 28px);
+  top: calc(50% - 8px);
+}
+.desktop-workspace > .app-window.window-front {
+  z-index: 3;
+}
+.desktop-workspace > .app-window.window-maximized {
+  position: fixed;
+  inset: 12px 12px 50px;
+  width: auto;
+  max-height: none;
+  transform: none !important;
+}
+.app-title-bar {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.app-title-bar:active {
+  cursor: grabbing;
+}
+.app-title-bar .title-bar-controls {
+  cursor: default;
+}
+.desktop-workspace > .window > .window-body {
+  overflow: auto;
+  min-height: 0;
+}
+.tab-panel {
+  min-width: 0;
+}
+.taskbar {
+  position: fixed;
+  z-index: 20;
+  inset: auto 0 0;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 6px 0 2px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.55), transparent 16%),
+    linear-gradient(180deg, rgba(88,150,192,.94), rgba(20,73,112,.97) 45%, rgba(12,48,81,.98));
+  border-top: 1px solid rgba(220,244,255,.9);
+  box-shadow: 0 -2px 8px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.5);
+  backdrop-filter: blur(12px);
+}
+.start-orb {
+  position: relative;
+  display: grid;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 38px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(220,246,255,.9);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 32% 22%, #d8f6ff 0%, #59caff 24%, #0879c7 54%, #034b94 76%, #032c65 100%);
+  box-shadow: inset 0 1px 3px #fff, inset 0 -3px 5px rgba(0,0,0,.45), 0 0 5px rgba(0,0,0,.7);
+}
+.start-orb::after {
+  position: absolute;
+  inset: 3px 5px auto;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(rgba(255,255,255,.68), rgba(255,255,255,0));
+  content: "";
+}
+.start-mark {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  grid-template: repeat(2, 1fr) / repeat(2, 1fr);
+  gap: 2px;
+  transform: skewY(-8deg);
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.55));
+}
+.start-mark i:nth-child(1) { background: #f24438; }
+.start-mark i:nth-child(2) { background: #73c936; }
+.start-mark i:nth-child(3) { background: #27a8e8; }
+.start-mark i:nth-child(4) { background: #ffce35; }
+.taskbar-app {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 142px;
+  max-width: 220px;
+  height: 34px;
+  padding: 3px 11px 3px 6px;
+  border: 1px solid rgba(210,238,255,.62);
+  border-radius: 4px;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(191,225,249,.42), rgba(39,112,166,.55) 48%, rgba(17,70,117,.66));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 2px rgba(0,0,0,.35);
+  text-align: left;
+  font-weight: 600;
+  text-shadow: 0 1px 2px #173a53;
+  cursor: pointer;
+}
+.taskbar-app:not(:disabled):hover {
+  border-color: rgba(210,238,255,.62);
+  transition: none;
+}
+.taskbar-app-active:not(:disabled):hover {
+  border-color: rgba(235,249,255,.95);
+}
+.taskbar-app:not(:disabled):hover::before {
+  opacity: 0;
+  transition: none;
+}
+.taskbar-app-active {
+  border-color: rgba(235,249,255,.95);
+  background: linear-gradient(180deg, rgba(225,245,255,.72), rgba(77,160,216,.72) 48%, rgba(28,92,145,.8));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.76), 0 0 7px rgba(200,238,255,.42);
+}
+.taskbar-app-minimized {
+  background: linear-gradient(180deg, rgba(31,83,124,.68), rgba(13,50,84,.82));
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.35), 0 1px 2px rgba(255,255,255,.2);
+}
+.taskbar-app-relief .app-task-icon {
+  font-size: 9px;
+  font-weight: 800;
+}
+.app-task-icon {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 4px;
+  color: #fff;
+  background: linear-gradient(145deg, #8ecbdc, #327db5 55%, #174e82);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.7), 0 1px 2px rgba(0,0,0,.4);
+  font-size: 13px;
+}
+.system-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  height: 34px;
+  margin-left: auto;
+  padding: 0 8px;
+  border: 1px solid rgba(174,217,243,.25);
+  border-radius: 3px;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(15,61,97,.58), rgba(7,38,67,.4));
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 0 1px 2px #102e43;
+}
+.tray-clock {
+  line-height: 13px;
+  white-space: nowrap;
+}
+.tray-clock small {
+  font-size: 10px;
+}
+.show-desktop {
+  align-self: stretch;
+  flex: 0 0 7px;
+  margin: 0 -6px 0 2px;
+  border-left: 1px solid rgba(221,241,255,.5);
+  background: linear-gradient(90deg, rgba(130,190,224,.55), rgba(28,85,129,.7));
+  box-shadow: inset 1px 0 rgba(255,255,255,.3);
+}
+@media(max-width: 900px) {
+  .desktop { align-items: flex-start; }
+  .desktop-workspace > .app-window:not(.window-maximized) {
+    width: calc(100% - 24px);
+    max-height: calc(100% - 60px);
+    left: 12px;
+    top: 12px;
+    transform: none !important;
+  }
+  .desktop-workspace > .relief-app-window:not(.window-maximized) {
+    left: 12px;
+    top: 12px;
+  }
+}
+@media(max-width: 600px) {
+  .desktop {
+    padding: 0;
+  }
+  .desktop-workspace > .app-window:not(.window-maximized) {
+    top: 8px;
+    left: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 60px);
+    max-height: none;
+    transform: none !important;
+  }
+  .desktop-workspace > .relief-app-window:not(.window-maximized) {
+    top: 8px;
+    left: 8px;
+  }
+  .desktop-workspace > .app-window.window-maximized {
+    position: absolute;
+    inset: 8px 8px 54px;
+    width: auto;
+  }
+  .taskbar {
+    gap: 4px;
+    padding-right: 4px;
+  }
+  .taskbar-app {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 180px;
+    gap: 5px;
+    padding-right: 5px;
+  }
+  .system-tray,
+  .show-desktop {
+    display: none;
+  }
+  .app-window > .status-bar .status-bar-field:nth-child(n + 2) {
+    display: none;
+  }
+}
+@media(max-width: 360px) {
+  .taskbar-app > span:last-child {
+    display: none;
+  }
+  .taskbar-app {
+    flex: 0 0 38px;
+    width: 38px;
+    min-width: 38px;
+    padding: 3px 6px;
+  }
+  .taskbar-app .app-task-icon { flex: 0 0 23px; }
+}
+.err { font-size: 11px; color: #c73b3b; margin-top: 6px; }
+.dlgoverlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10,25,45,.35);
+}
+.field-row > label { white-space: nowrap; }
+.field-row > select, .field-row > input[type=range] { flex: 1; min-width: 0; }
